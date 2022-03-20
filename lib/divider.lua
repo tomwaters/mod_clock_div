@@ -7,12 +7,13 @@ function Divider:new(div, chan)
     div = div,
     running = false,
     
-    midi_out_device = midi.connect(1),
+    midi_out_device_id = 1,
     midi_out_channel = chan,
     active_notes = {},
 
     notes_off_metro = metro.init()
   }
+  o.midi_out_device = midi.connect(o.midi_out_device_id)
   o.notes_off_metro.event = function() o:all_notes_off() end
 
   setmetatable(o, Divider)
@@ -27,6 +28,11 @@ end
 
 function Divider:stop()
   self.running = false
+end
+
+function Divider:set_midi_device(device_id)
+  self.midi_out_device_id = device_id
+  self.midi_out_device = midi.connect(device_id)
 end
 
 function Divider:all_notes_off()
