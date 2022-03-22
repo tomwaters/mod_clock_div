@@ -33,7 +33,7 @@ m.enc = function(n, d)
     elseif current_option == 2 then
       if d < 0 and dividers[current_divider].running then
         dividers[current_divider]:stop()
-      elseif d > 1 and not dividers[current_divider].running then
+      elseif d > 0 and not dividers[current_divider].running then
         dividers[current_divider]:start()
       end
     elseif current_option == 3 then
@@ -67,7 +67,7 @@ m.redraw = function()
   screen.text("ENABLED: "..(dividers[current_divider].running and "Y" or "N"))
   screen.move(2, 36)
   screen.level(current_option == 3 and disp_bright or disp_dim)
-  screen.text("DIVISION: "..dividers[current_divider].divisions[dividers[current_divider].div])
+  screen.text("EVERY: "..dividers[current_divider].divisions[dividers[current_divider].div])
   screen.move(2, 44)
   screen.level(current_option == 4 and disp_bright or disp_dim)
   screen.text("MIDI DEVICE: "..dividers[current_divider].midi_out_device_id)
@@ -127,5 +127,5 @@ m.deinit = function() end -- on menu exit
 mod.menu.register(mod.this_name, m)
 
 
---/clock.transport.start — called by transport start
+--clock.transport.start — called by transport start
 --clock.transport.stop — called by transport stop
