@@ -13,9 +13,6 @@ mod.hook.register('system_post_startup', 'clock div startup', function()
 end)
 
 mod.hook.register('script_pre_init', 'clock div init', function()
-  for i = 1, #dividers do
-    dividers[i]:start()
-  end
 end)
 
 
