@@ -10,9 +10,16 @@ mod.hook.register('system_post_startup', 'clock div startup', function()
   table.insert(dividers, Divider:new(3, 3))
   table.insert(dividers, Divider:new(4, 4))
   load_settings()
+  
+  if not util.file_exists(_path.data.."/mod_clock_div/") then
+    util.make_dir(_path.data.."/mod_clock_div/")
+  end
 end)
 
 mod.hook.register('script_pre_init', 'clock div init', function()
+  for i = 1, #dividers do
+    dividers[i]:start()
+  end
 end)
 
 
@@ -26,7 +33,7 @@ end
 
 m.enc = function(n, d)
   if n == 2 then
-    current_option = util.clamp(current_option + d, 1, 5)
+    current_option = util.clamp(current_option + d, 1, 6)
   elseif n == 3 then 
     if current_option == 1 then
       current_divider = util.clamp(current_divider + d, 1, #dividers)
@@ -39,11 +46,13 @@ m.enc = function(n, d)
     elseif current_option == 3 then
       dividers[current_divider].div = util.clamp(dividers[current_divider].div + d, 1, #dividers[current_divider].divisions)
     elseif current_option == 4 then
+      dividers[current_divider].chance = util.clamp(dividers[current_divider].chance + (d/10), 0, 1)
+    elseif current_option == 5 then
       local new_device = util.clamp(dividers[current_divider].midi_out_device_id + d, 1, 4)
       if new_device ~= dividers[current_divider].midi_out_device_id then
         dividers[current_divider]:set_midi_device(new_device)
       end
-    elseif current_option == 5 then
+    elseif current_option == 6 then
       dividers[current_divider].midi_out_channel = util.clamp(dividers[current_divider].midi_out_channel + d, 1, 16)
     end
     save_settings()
@@ -70,9 +79,12 @@ m.redraw = function()
   screen.text("EVERY: "..dividers[current_divider].divisions[dividers[current_divider].div])
   screen.move(2, 44)
   screen.level(current_option == 4 and disp_bright or disp_dim)
-  screen.text("MIDI DEVICE: "..dividers[current_divider].midi_out_device_id)
+  screen.text("CHANCE: "..dividers[current_divider].chance)
   screen.move(2, 52)
   screen.level(current_option == 5 and disp_bright or disp_dim)
+  screen.text("MIDI DEVICE: "..dividers[current_divider].midi_out_device_id)
+  screen.move(2, 60)
+  screen.level(current_option == 6 and disp_bright or disp_dim)
   screen.text("MIDI CHAN: "..dividers[current_divider].midi_out_channel)
   
   screen.update()
@@ -86,6 +98,7 @@ function save_settings()
     for i = 1, #dividers do
       io.write(string.format("\"%d.running\": %s\n", i, dividers[i].running and 1 or 0))
       io.write(string.format("\"%d.div\": %s\n", i, dividers[i].div))
+      io.write(string.format("\"%d.chance\": %s\n", i, dividers[i].chance))
       io.write(string.format("\"%d.midi_out_device_id\": %s\n", i, dividers[i].midi_out_device_id))
       io.write(string.format("\"%d.midi_out_channel\": %s\n", i, dividers[i].midi_out_channel))
     end

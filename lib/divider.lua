@@ -6,6 +6,7 @@ function Divider:new(div, chan)
     divisions = {0.25, 0.5, 1, 2, 4, 8, 16},
     div = div,
     running = false,
+    chance = 1.0,
     
     midi_out_device_id = 1,
     midi_out_channel = chan,
@@ -47,11 +48,13 @@ function Divider:step()
     clock.sync(self.divisions[self.div])
     self:all_notes_off()
     
-    local n = 60
-    self.midi_out_device:note_on(n, 127, self.midi_out_channel)
-    table.insert(self.active_notes, n)
+    if math.random() < self.chance then
+      local n = 60
+      self.midi_out_device:note_on(n, 127, self.midi_out_channel)
+      table.insert(self.active_notes, n)
     
-    self.notes_off_metro:start(0.01, 1)
+      self.notes_off_metro:start(0.01, 1)
+    end
   end
 end
 
