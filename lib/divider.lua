@@ -3,31 +3,32 @@ Divider.__index = Divider
 
 function Divider:new(div, chan)
   local o = {
-    divisions = {0.25, 0.5, 1, 2, 4, 8, 16},
+    divisions = {0.25, 0.5, 1.5, 1, 2, 4, 6, 8, 16},
     div = div,
     running = false,
     chance = 1.0,
     
     midi_out_device_id = 1,
     midi_out_channel = chan,
-    active_notes = {},
-
-    notes_off_metro = metro.init()
+    active_notes = {}
   }
   o.midi_out_device = midi.connect(o.midi_out_device_id)
-  o.notes_off_metro.event = function() o:all_notes_off() end
-
+  
   setmetatable(o, Divider)
   
   return o
 end
 
 function Divider:start()
+  self.notes_off_metro = metro.init()
+  self.notes_off_metro.event = function() self:all_notes_off() end
+  
   self.running = true
   clock.run(Divider.step, self)
 end
 
 function Divider:stop()
+  self.notes_off_metro:stop()
   self.running = false
 end
 
